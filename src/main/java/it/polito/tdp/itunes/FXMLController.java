@@ -5,8 +5,10 @@
 package it.polito.tdp.itunes;
 
 import java.net.URL;
+import java.util.List;
 import java.util.ResourceBundle;
 import it.polito.tdp.itunes.model.Album;
+import it.polito.tdp.itunes.model.BilancioAlbum;
 import it.polito.tdp.itunes.model.Model;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
@@ -35,7 +37,7 @@ public class FXMLController {
     private Button btnPercorso; // Value injected by FXMLLoader
 
     @FXML // fx:id="cmbA1"
-    private ComboBox<?> cmbA1; // Value injected by FXMLLoader
+    private ComboBox<Album> cmbA1; // Value injected by FXMLLoader
 
     @FXML // fx:id="cmbA2"
     private ComboBox<?> cmbA2; // Value injected by FXMLLoader
@@ -51,6 +53,18 @@ public class FXMLController {
 
     @FXML
     void doCalcolaAdiacenze(ActionEvent event) {
+    	//devo prendere dalla combobox l'album 
+    	Album a=this.cmbA1.getValue();
+    	if(a==null) {
+    		this.txtResult.appendText("Selezionare un album");
+    		return;
+    	}
+    	
+    	List<BilancioAlbum> bilanci=this.model.getAdiacenti(a);
+    	
+    	for(BilancioAlbum b: bilanci) {
+    		this.txtResult.appendText(b+"\n");
+    	}
     	
     }
 
@@ -61,10 +75,35 @@ public class FXMLController {
 
     @FXML
     void doCreaGrafo(ActionEvent event) {
+    //prendo l'input dalla casella di testo e gestisco l'eccezione
+    	
+    	String input=this.txtN.getText();
+    	if(input=="") {
+    		this.txtResult.appendText("Inserire un numero");
+    		return;
+    	}
+    	
+    	try {
+    		int inputNumerico=Integer.parseInt(input);
+    		
+    		//costruisco il grafo
+    		this.model.creaGrafo(inputNumerico);
+    		
+    		this.txtResult.appendText("Grafo creato con "+ this.model.nVertici()+" vertici e"+ this.model.nArchi()+" archi");
+    		
+    		//setto la combobox con i vertici del grafo appena creato
+    		List<Album> vertici=this.model.getVertici();
+    		 this.cmbA1.getItems().addAll(vertici);
+    		
+    	}catch(NumberFormatException e) {
+    		this.txtResult.appendText("Il numero inserito non è valido");
+    	}
     	
     }
 
-    @FXML // This method is called by the FXMLLoader when initialization is complete
+
+
+	@FXML // This method is called by the FXMLLoader when initialization is complete
     void initialize() {
         assert btnAdiacenze != null : "fx:id=\"btnAdiacenze\" was not injected: check your FXML file 'Scene.fxml'.";
         assert btnCreaGrafo != null : "fx:id=\"btnCreaGrafo\" was not injected: check your FXML file 'Scene.fxml'.";

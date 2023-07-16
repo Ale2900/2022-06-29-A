@@ -1,13 +1,23 @@
 package it.polito.tdp.itunes.model;
 
-public class Album {
+public class Album implements Comparable<Album> {
 	private Integer albumId;
 	private String title;
-	
-	public Album(Integer albumId, String title) {
+
+	private Integer num; //numsogns che ho aggiunto iio per ottenere la query dei vertii
+	public Album(Integer albumId, String title, Integer num) {
 		super();
 		this.albumId = albumId;
 		this.title = title;
+		this.num=num;
+	}
+
+	public Integer getNum() {
+		return num;
+	}
+
+	public void setNum(Integer num) {
+		this.num = num;
 	}
 
 	public Integer getAlbumId() {
@@ -54,6 +64,12 @@ public class Album {
 	@Override
 	public String toString() {
 		return title;
+	}
+
+	@Override
+	public int compareTo(Album a) {
+		// TODO Auto-generated method stub
+		return this.title.compareTo(a.getTitle());
 	}
 	
 	

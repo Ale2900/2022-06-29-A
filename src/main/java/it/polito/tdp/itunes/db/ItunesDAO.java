@@ -7,7 +7,10 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
+
 import it.polito.tdp.itunes.model.Album;
+
 import it.polito.tdp.itunes.model.Artist;
 import it.polito.tdp.itunes.model.Genre;
 import it.polito.tdp.itunes.model.MediaType;
@@ -26,7 +29,7 @@ public class ItunesDAO {
 			ResultSet res = st.executeQuery();
 
 			while (res.next()) {
-				result.add(new Album(res.getInt("AlbumId"), res.getString("Title")));
+				result.add(new Album(res.getInt("AlbumId"), res.getString("Title"),0));
 			}
 			conn.close();
 		} catch (SQLException e) {
@@ -138,5 +141,44 @@ public class ItunesDAO {
 		}
 		return result;
 	}
+	
+	//QUERY PER I VERTICI: mi restituisce una lista di album con il loro numero di canzoni
+	public List <Album> getVertici(int n){
+		String sql="SELECT  a.AlbumId, a.Title, COUNT(t.trackId) AS num " // per ottenere il numero di canzoni devo contare quante canzoni hanno lo stesso albumId
+				+ "FROM track t, album a "        
+				+ "WHERE t.AlbumId=a.albumId  " 
+				+ "GROUP BY a.AlbumId, a.Title "                         //raggruppo per id e nome, il count che è funzione aggregata lavora sul risulato della group by
+				+ "HAVING num> ?" ;
+		List<Album> result=new LinkedList<Album>();
+		try {
+			Connection conn = DBConnect.getConnection();
+			PreparedStatement st = conn.prepareStatement(sql);
+			st.setInt(1, n); //setto il parametro
+			ResultSet res = st.executeQuery();
+
+			
+			while(res.next()) {
+				result.add(new Album(res.getInt("AlbumId"), res.getString("Title"), res.getInt("num"))); //ATTENZIONE: l'attributo num l'ho aggiungo al costruttore della classe Album
+				//ATTENZIONE: infatti nell'altro tema d'esame l'attributo che avevo aggiungo era la durata di un album
+				//regolati su quale attributo va aggiunto
+			}
+			
+			conn.close();
+			return result;
+			
+			
+		}catch(SQLException e) {
+			e.printStackTrace();
+			throw new RuntimeException("SQL Error");
+		}
+		
+	}
+	
+	
+
+	
+	
+	
+	
 	
 }
